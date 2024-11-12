@@ -5,59 +5,43 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-let users = []
+let users = [];  // Array para rastrear os usuários conectados
 
+// Servir o arquivo HTML estático
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-
+// Configuração do Socket.IO para tratar os eventos de conexão, mensagem e desconexão
 io.on('connection', (socket) => {
-    console.log('A user connected: ' + socket.id);
-  
-    // Adiciona o usuário à lista de online
-    users.push(socket.id);
-  
-    // Broadcast para todos os outros que um usuário entrou
-    socket.broadcast.emit('message', 'A new user has joined the chat');
+  console.log('Um usuário se conectou: ' + socket.id);
 
-    // Envia a quantidade de usuários online para todos
-    io.emit('users online', users.length);
-  
-    // Evento de desconexão
-    socket.on('disconnect', () => {
-      console.log('A user disconnected: ' + socket.id);
-  
-      // Remove o usuário da lista
-      users = users.filter(user => user !== socket.id);
-  
-      // Broadcast para todos os outros que o usuário saiu
-      socket.broadcast.emit('message', 'A user has left the chat');
-  
-      // Envia a quantidade de usuários online atualizada
-      io.emit('users online', users.length);
-    });
+  // Adiciona o usuário à lista e envia a contagem de usuários online
+  users.push(socket.id);
+  io.emit('users online', users.length);
+
+  // Notifica todos os outros usuários sobre a nova conexão
+  socket.broadcast.emit('message', 'Um novo usuário entrou no chat');
+
+  // Lida com o evento de mensagem enviada pelo usuário
+  socket.on('chat message', (msg) => {
+    io.emit('message', msg);  // Envia a mensagem para todos os clientes conectados
   });
-  
-// io.on('connection', (socket) => {
-//     console.log('a user connected');
-    
-//     // Lidar com a mensagem de chat enviada pelo cliente
-//     socket.on('chat message', (msg) => {
-//       console.log('message: ' + msg);
-//     });
 
-//     socket.on('chat message', (msg)=> { 
-//         io.emit('chat message', msg)
-//     })
-    
-    
-//     // Lidar com a desconexão do cliente
-//     socket.on('disconnect', () => {
-//       console.log('user disconnected');
-//     });
-// });
+  // Lida com o evento de desconexão
+  socket.on('disconnect', () => {
+    console.log('Um usuário se desconectou: ' + socket.id);
+    users = users.filter(user => user !== socket.id);  // Remove o usuário da lista
 
+    // Notifica todos os outros usuários sobre a desconexão
+    socket.broadcast.emit('message', 'Um usuário saiu do chat');
+    
+    // Atualiza a contagem de usuários online
+    io.emit('users online', users.length);
+  });
+});
+
+// Inicializa o servidor na porta 3000
 server.listen(3000, () => {
-  console.log('listening on *:3000');
+  console.log('Listening on *:3000');
 });

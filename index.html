@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Room</title>
+  <title>Chat JM</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,31 +24,31 @@
 </head>
 <body>
 
-<h1>Chat Room</h1>
+<h1>Meu chat</h1>
 
 <div id="status">
-  <p>Users online: <span id="user-count">0</span></p>
+  <p>Usuarios online: <span id="user-count">0</span></p>
 </div>
 
 <ul id="messages"></ul>
 
 <form id="form">
-  <input id="input" autocomplete="off" placeholder="Type a message" />
-  <button>Send</button>
+  <input id="input" autocomplete="off" placeholder="Digite sua mensagem" />
+  <button>Enviar</button>
 </form>
 
 <script  src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
-  var socket = io(); // Conectando ao servidor
+  let socket = io(); // Conectando ao servidor
 
-  var form = document.getElementById('form');
-  var input = document.getElementById('input');
-  var messages = document.getElementById('messages');
-  var userCount = document.getElementById('user-count');
+  let form = document.getElementById('form');
+  let input = document.getElementById('input');
+  let messages = document.getElementById('messages');
+  let userCount = document.getElementById('user-count');
 
   // Evento: Recebe as mensagens de conexão/desconexão
   socket.on('message', function(msg) {
-    var item = document.createElement('li');
+    let item = document.createElement('li');
     item.textContent = msg;
     messages.appendChild(item);
   });
@@ -62,7 +62,7 @@
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value) {
-      var item = document.createElement('li');
+      let item = document.createElement('li');
       item.textContent = 'You: ' + input.value;
       messages.appendChild(item);
       
